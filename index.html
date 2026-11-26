@@ -20,40 +20,73 @@ label{font-size:13px;font-weight:bold}.formgrid{display:grid;grid-template-colum
 .match{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #edf0ed}.match strong{font-size:18px}
 .teamrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #edf0ed}.teamrow input{margin:0}
 button.danger{background:#fff0ef;color:#a52d26}button:disabled{opacity:.45;cursor:not-allowed}
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.pod{background:#f4f8f2;border-radius:12px;padding:14px 10px;text-align:center;border:1px solid #e3ebe2}.pod.first{background:linear-gradient(160deg,#123c2a,#23633f);color:white;border:0}.pod .medal{font-size:26px}.pod .pname{font-weight:bold;margin-top:4px;overflow-wrap:anywhere}.pod .pteam{font-size:12px;opacity:.75}.pod .pgoals{font-size:26px;font-weight:bold;margin-top:6px}.pod .pgoals small{font-size:12px;font-weight:normal;opacity:.8}
+.goals{font-size:16px;font-weight:bold;color:var(--green)}.acts{display:flex;gap:5px;justify-content:center}.acts button{padding:6px 10px;background:#e1e9e2;color:#23412e}.acts button.danger{background:#fff0ef;color:#a52d26}
+.top5{margin-top:22px;padding-top:16px;border-top:1px solid #e9eee9}.top5 .row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f3f0}.top5 .row .who{flex:1;min-width:0}.top5 .row .who small{display:block;color:#718076;font-size:12px}.linkbtn{background:none;color:var(--green);padding:8px 0;text-decoration:underline}
 footer{text-align:center;color:#829087;font-size:12px;padding:20px}
-@media(max-width:560px){.panel{padding:13px}th,td{padding:9px 4px;font-size:12px}.formgrid{grid-template-columns:1fr}.stats{gap:8px}.stat{flex:1}}
+@media(max-width:560px){.podium{gap:6px}.pod{padding:10px 6px}.pod .pgoals{font-size:20px}.acts button{padding:5px 8px}.panel{padding:13px}th,td{padding:9px 4px;font-size:12px}.formgrid{grid-template-columns:1fr}.stats{gap:8px}.stat{flex:1}}
 </style>
 </head>
 <body>
 <header><div class="wrap">
 <div class="tag">TEMPORADA • CAMPEONATO</div><h1>🏆 SUPER LIGA</h1><p>20 clubes. Uma competição. Um campeão.</p>
-<div class="stats"><div class="stat"><b id="statTeams">20</b><span>Times</span></div><div class="stat"><b id="statGames">0</b><span>Jogos realizados</span></div><div class="stat"><b id="statPoints">0</b><span>Pontos somados</span></div></div>
+<div class="stats"><div class="stat"><b id="statTeams">20</b><span>Times</span></div><div class="stat"><b id="statGames">0</b><span>Jogos realizados</span></div><div class="stat"><b id="statPoints">0</b><span>Pontos somados</span></div><div class="stat"><b id="statGoals">0</b><span>Gols na liga</span></div></div>
 </div></header>
 <main class="wrap">
-<nav><button class="tab active" data-tab="table">Classificação</button><button class="tab" data-tab="games">Jogos</button><button class="tab" data-tab="teams">Times</button></nav>
-<section id="table" class="panel"><h2>📊 Classificação</h2><div style="overflow-x:auto"><table><thead><tr><th>#</th><th class="club">CLUBE</th><th>PTS</th><th>J</th><th>V</th><th>E</th><th>D</th><th>SG</th></tr></thead><tbody id="standings"></tbody></table></div><p class="muted">Vitória = 3 pontos • Empate = 1 ponto • Derrota = 0 ponto</p></section>
+<nav><button class="tab active" data-tab="table">Classificação</button><button class="tab" data-tab="games">Jogos</button><button class="tab" data-tab="scorers">Artilharia</button><button class="tab" data-tab="teams">Times</button></nav>
+<section id="table" class="panel"><h2>📊 Classificação</h2><div style="overflow-x:auto"><table><thead><tr><th>#</th><th class="club">CLUBE</th><th>PTS</th><th>J</th><th>V</th><th>E</th><th>D</th><th>SG</th></tr></thead><tbody id="standings"></tbody></table></div><p class="muted">Vitória = 3 pontos • Empate = 1 ponto • Derrota = 0 ponto</p><div class="top5"><h2>🥇 Melhores jogadores</h2><div id="top5"></div><button class="linkbtn" id="seeScorers">Ver artilharia completa →</button></div></section>
 <section id="games" class="panel" hidden><h2>⚽ Registrar resultado</h2><div class="formgrid"><div><label for="home">Time mandante</label><select id="home"></select></div><div><label for="away">Time visitante</label><select id="away"></select></div></div><div class="score"><div><label for="hg">Gols mandante</label><input id="hg" type="number" min="0" step="1" value="0"></div><b>×</b><div><label for="ag">Gols visitante</label><input id="ag" type="number" min="0" step="1" value="0"></div></div><button class="primary" id="addGame">Salvar resultado</button><h2 style="margin-top:25px">Resultados</h2><div id="results"><p class="muted">Nenhum jogo registrado ainda.</p></div></section>
+<section id="scorers" class="panel" hidden><h2>🥇 Artilharia — Melhores jogadores</h2><div id="podium" class="podium"></div><div style="overflow-x:auto"><table><thead><tr><th>#</th><th class="club">JOGADOR</th><th class="club">TIME</th><th>GOLS</th><th>AJUSTAR</th></tr></thead><tbody id="scorerTable"></tbody></table></div><p class="muted">Use + e − para atualizar os gols de cada jogador.</p><h2 style="margin-top:25px">➕ Adicionar jogador</h2><div class="formgrid"><div><label for="pname">Nome do jogador</label><input id="pname" maxlength="40" placeholder="Ex.: João Silva"></div><div><label for="pteam">Time</label><select id="pteam"></select></div></div><label for="pgoals">Gols marcados</label><input id="pgoals" type="number" min="0" step="1" value="0"><button class="primary" id="addPlayer">Adicionar jogador</button></section>
 <section id="teams" class="panel" hidden><h2>👕 Os 20 clubes</h2><p class="muted">Troque “Time 1”, “Time 2” etc. pelos nomes dos clubes da sua liga.</p><div id="teamList"></div></section>
-<section class="panel"><button class="danger" id="reset">Reiniciar campeonato</button><p class="muted">Atenção: reiniciar apaga os resultados e restaura os nomes iniciais.</p></section>
+<section class="panel"><button class="danger" id="reset">Reiniciar campeonato</button><p class="muted">Atenção: reiniciar apaga os resultados, os jogadores e restaura os nomes iniciais.</p></section>
 </main><footer>SUPER LIGA • Seu campeonato de futebol</footer>
 <script>
 const defaults=Array.from({length:20},(_,i)=>({id:i+1,name:`Time ${i+1}`,p:0,j:0,v:0,e:0,d:0,gp:0,gc:0}));
 let state;try{state=JSON.parse(localStorage.getItem('superLigaData'))||{teams:defaults,games:[]}}catch(e){state={teams:defaults,games:[]}}
+if(!Array.isArray(state.players))state.players=[];
 function save(){localStorage.setItem('superLigaData',JSON.stringify(state));render()}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function sorted(){return [...state.teams].sort((a,b)=>b.p-a.p||(b.gp-b.gc)-(a.gp-a.gc)||b.gp-a.gp||a.name.localeCompare(b.name))}
+function teamName(id){const t=state.teams.find(x=>x.id==id);return t?t.name:'—'}
+function scorers(){return [...state.players].sort((a,b)=>b.goals-a.goals||a.name.localeCompare(b.name))}
+function gl(n){return n===1?'gol':'gols'}
 function render(){
  document.getElementById('statTeams').textContent=state.teams.length;
  document.getElementById('statGames').textContent=state.games.length;
  document.getElementById('statPoints').textContent=state.teams.reduce((s,t)=>s+t.p,0);
+ document.getElementById('statGoals').textContent=state.teams.reduce((s,t)=>s+t.gp,0);
+ const sc=scorers(),medals=['🥇','🥈','🥉'];
+ document.getElementById('top5').innerHTML=sc.length?sc.slice(0,5).map((p,i)=>`<div class="row"><span class="rank">${i<3?medals[i]:(i+1)+'º'}</span><div class="who"><b>${esc(p.name)}</b><small>${esc(teamName(p.teamId))}</small></div><span class="goals">${p.goals} ${gl(p.goals)}</span></div>`).join(''):'<p class="muted">Nenhum jogador cadastrado ainda. Adicione na aba Artilharia.</p>';
+ document.getElementById('podium').innerHTML=sc.slice(0,3).map((p,i)=>`<div class="pod${i===0?' first':''}"><div class="medal">${medals[i]}</div><div class="pname">${esc(p.name)}</div><div class="pteam">${esc(teamName(p.teamId))}</div><div class="pgoals">${p.goals} <small>${gl(p.goals)}</small></div></div>`).join('');
+ document.getElementById('podium').hidden=!sc.length;
+ document.getElementById('scorerTable').innerHTML=sc.length?sc.map((p,i)=>`<tr><td class="rank">${i+1}º</td><td class="club"><b>${esc(p.name)}</b></td><td class="club">${esc(teamName(p.teamId))}</td><td class="goals">${p.goals}</td><td><div class="acts"><button data-act="minus" data-id="${p.id}" aria-label="Tirar um gol de ${esc(p.name)}"${p.goals?'':' disabled'}>−</button><button data-act="plus" data-id="${p.id}" aria-label="Adicionar um gol para ${esc(p.name)}">+</button><button class="danger" data-act="del" data-id="${p.id}" aria-label="Remover ${esc(p.name)}">✕</button></div></td></tr>`).join(''):'<tr><td colspan="5" class="muted">Nenhum jogador cadastrado ainda.</td></tr>';
  document.getElementById('standings').innerHTML=sorted().map((t,i)=>`<tr><td class="rank">${i+1}º</td><td class="club">${esc(t.name)}</td><td><b>${t.p}</b></td><td>${t.j}</td><td>${t.v}</td><td>${t.e}</td><td>${t.d}</td><td>${t.gp-t.gc}</td></tr>`).join('');
  const opts=state.teams.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('');
  const h=document.getElementById('home'),a=document.getElementById('away'),oldH=h.value,oldA=a.value;
+ const pt=document.getElementById('pteam'),oldP=pt.value;pt.innerHTML=opts;pt.value=state.teams.some(t=>t.id==oldP)?oldP:'1';
  h.innerHTML=opts;a.innerHTML=opts;h.value=state.teams.some(t=>t.id==oldH)?oldH:'1';a.value=state.teams.some(t=>t.id==oldA)?oldA:'2';
  document.getElementById('teamList').innerHTML=state.teams.map(t=>`<div class="teamrow"><b>${t.id}.</b><input aria-label="Nome do time ${t.id}" data-team="${t.id}" value="${esc(t.name)}"></div>`).join('');
  document.getElementById('results').innerHTML=state.games.length?state.games.slice().reverse().map(g=>`<div class="match"><span>${esc(g.a)}</span><strong>${g.x} × ${g.y}</strong><span>${esc(g.b)}</span></div>`).join(''):'<p class="muted">Nenhum jogo registrado ainda.</p>';
 }
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['table','games','teams'].forEach(id=>document.getElementById(id).hidden=id!==b.dataset.tab)}));
+function showTab(tab){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));['table','games','scorers','teams'].forEach(id=>document.getElementById(id).hidden=id!==tab)}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+document.getElementById('seeScorers').addEventListener('click',()=>showTab('scorers'));
+document.getElementById('addPlayer').addEventListener('click',()=>{
+ const n=document.getElementById('pname'),name=n.value.trim(),teamId=Number(document.getElementById('pteam').value),goals=Number(document.getElementById('pgoals').value);
+ if(!name){alert('Digite o nome do jogador.');n.focus();return}
+ if(!Number.isInteger(goals)||goals<0){alert('Digite um número de gols válido.');return}
+ if(state.players.some(p=>p.name.toLowerCase()===name.toLowerCase()&&p.teamId===teamId)){alert('Esse jogador já está cadastrado nesse time.');return}
+ const id=state.players.reduce((m,p)=>Math.max(m,p.id),0)+1;
+ state.players.push({id,name,teamId,goals});n.value='';document.getElementById('pgoals').value=0;save();
+});
+document.getElementById('scorerTable').addEventListener('click',e=>{
+ const b=e.target.closest('button[data-act]');if(!b)return;
+ const p=state.players.find(x=>x.id==b.dataset.id);if(!p)return;
+ if(b.dataset.act==='plus')p.goals++;
+ else if(b.dataset.act==='minus'){if(p.goals>0)p.goals--}
+ else if(b.dataset.act==='del'){if(!confirm(`Remover ${p.name} da artilharia?`))return;state.players=state.players.filter(x=>x!==p)}
+ save();
+});
 document.getElementById('teamList').addEventListener('change',e=>{if(e.target.dataset.team){const t=state.teams.find(x=>x.id==e.target.dataset.team);if(t){t.name=e.target.value.trim()||`Time ${t.id}`;save()}}});
 document.getElementById('addGame').addEventListener('click',()=>{
  const a=Number(document.getElementById('home').value),b=Number(document.getElementById('away').value),x=Number(document.getElementById('hg').value),y=Number(document.getElementById('ag').value);
@@ -63,6 +96,6 @@ document.getElementById('addGame').addEventListener('click',()=>{
  for(const [t,gf,gc] of [[ta,x,y],[tb,y,x]]){t.j++;t.gp+=gf;t.gc+=gc;if(gf>gc){t.v++;t.p+=3}else if(gf===gc){t.e++;t.p++}else t.d++}
  state.games.push({a:ta.name,b:tb.name,x,y});save();
 });
-document.getElementById('reset').addEventListener('click',()=>{if(confirm('Tem certeza? Todos os resultados e nomes serão apagados.')){state={teams:defaults.map(t=>({...t})),games:[]};save()}});
+document.getElementById('reset').addEventListener('click',()=>{if(confirm('Tem certeza? Todos os resultados, jogadores e nomes serão apagados.')){state={teams:defaults.map(t=>({...t})),games:[],players:[]};save()}});
 render();
 </script></body></html>
