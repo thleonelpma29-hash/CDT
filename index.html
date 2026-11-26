@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SUPER LIGA — Campeonato de Futebol</title>
+<style>
+:root{--green:#123c2a;--lime:#b7ef70;--bg:#f3f6f3;--ink:#17231c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px Arial,sans-serif}
+header{background:linear-gradient(130deg,#102d20,#23633f);color:white;padding:28px 18px}
+.wrap{max-width:980px;margin:auto}header .tag{color:#c9e8ce;font-size:12px;letter-spacing:2px;font-weight:bold}
+h1{font-size:clamp(30px,7vw,48px);margin:8px 0}header p{margin:0;color:#d8e9dc}
+.stats{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap}.stat{background:#ffffff18;padding:12px 16px;border-radius:12px;min-width:100px}.stat b{display:block;font-size:24px}.stat span{font-size:12px;color:#d8e9dc}
+nav{display:flex;gap:8px;padding:16px 0;flex-wrap:wrap}.tab,button{border:0;border-radius:9px;padding:11px 15px;font-weight:bold;cursor:pointer}.tab{background:#e1e9e2;color:#23412e}.tab.active,button.primary{background:var(--green);color:white}
+main{padding:0 16px 35px}.panel{background:white;border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 2px 12px #183b2410}
+h2{margin:0 0 15px;font-size:20px}.muted{color:#718076;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px 7px;border-bottom:1px solid #e9eee9;text-align:center;white-space:nowrap}th{color:#718076;font-size:11px}td.club,th.club{text-align:left;white-space:normal}.rank{font-weight:bold;color:#738078}
+input,select{width:100%;padding:11px;border:1px solid #d7e0d8;border-radius:8px;background:white;font-size:15px;margin:5px 0 12px}
+label{font-size:13px;font-weight:bold}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.score{display:flex;gap:12px;align-items:center}.score>div{flex:1}
+.match{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #edf0ed}.match strong{font-size:18px}
+.teamrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #edf0ed}.teamrow input{margin:0}
+button.danger{background:#fff0ef;color:#a52d26}button:disabled{opacity:.45;cursor:not-allowed}
+footer{text-align:center;color:#829087;font-size:12px;padding:20px}
+@media(max-width:560px){.panel{padding:13px}th,td{padding:9px 4px;font-size:12px}.formgrid{grid-template-columns:1fr}.stats{gap:8px}.stat{flex:1}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="tag">TEMPORADA • CAMPEONATO</div><h1>🏆 SUPER LIGA</h1><p>20 clubes. Uma competição. Um campeão.</p>
+<div class="stats"><div class="stat"><b id="statTeams">20</b><span>Times</span></div><div class="stat"><b id="statGames">0</b><span>Jogos realizados</span></div><div class="stat"><b id="statPoints">0</b><span>Pontos somados</span></div></div>
+</div></header>
+<main class="wrap">
+<nav><button class="tab active" data-tab="table">Classificação</button><button class="tab" data-tab="games">Jogos</button><button class="tab" data-tab="teams">Times</button></nav>
+<section id="table" class="panel"><h2>📊 Classificação</h2><div style="overflow-x:auto"><table><thead><tr><th>#</th><th class="club">CLUBE</th><th>PTS</th><th>J</th><th>V</th><th>E</th><th>D</th><th>SG</th></tr></thead><tbody id="standings"></tbody></table></div><p class="muted">Vitória = 3 pontos • Empate = 1 ponto • Derrota = 0 ponto</p></section>
+<section id="games" class="panel" hidden><h2>⚽ Registrar resultado</h2><div class="formgrid"><div><label for="home">Time mandante</label><select id="home"></select></div><div><label for="away">Time visitante</label><select id="away"></select></div></div><div class="score"><div><label for="hg">Gols mandante</label><input id="hg" type="number" min="0" step="1" value="0"></div><b>×</b><div><label for="ag">Gols visitante</label><input id="ag" type="number" min="0" step="1" value="0"></div></div><button class="primary" id="addGame">Salvar resultado</button><h2 style="margin-top:25px">Resultados</h2><div id="results"><p class="muted">Nenhum jogo registrado ainda.</p></div></section>
+<section id="teams" class="panel" hidden><h2>👕 Os 20 clubes</h2><p class="muted">Troque “Time 1”, “Time 2” etc. pelos nomes dos clubes da sua liga.</p><div id="teamList"></div></section>
+<section class="panel"><button class="danger" id="reset">Reiniciar campeonato</button><p class="muted">Atenção: reiniciar apaga os resultados e restaura os nomes iniciais.</p></section>
+</main><footer>SUPER LIGA • Seu campeonato de futebol</footer>
+<script>
+const defaults=Array.from({length:20},(_,i)=>({id:i+1,name:`Time ${i+1}`,p:0,j:0,v:0,e:0,d:0,gp:0,gc:0}));
+let state;try{state=JSON.parse(localStorage.getItem('superLigaData'))||{teams:defaults,games:[]}}catch(e){state={teams:defaults,games:[]}}
+function save(){localStorage.setItem('superLigaData',JSON.stringify(state));render()}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function sorted(){return [...state.teams].sort((a,b)=>b.p-a.p||(b.gp-b.gc)-(a.gp-a.gc)||b.gp-a.gp||a.name.localeCompare(b.name))}
+function render(){
+ document.getElementById('statTeams').textContent=state.teams.length;
+ document.getElementById('statGames').textContent=state.games.length;
+ document.getElementById('statPoints').textContent=state.teams.reduce((s,t)=>s+t.p,0);
+ document.getElementById('standings').innerHTML=sorted().map((t,i)=>`<tr><td class="rank">${i+1}º</td><td class="club">${esc(t.name)}</td><td><b>${t.p}</b></td><td>${t.j}</td><td>${t.v}</td><td>${t.e}</td><td>${t.d}</td><td>${t.gp-t.gc}</td></tr>`).join('');
+ const opts=state.teams.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('');
+ const h=document.getElementById('home'),a=document.getElementById('away'),oldH=h.value,oldA=a.value;
+ h.innerHTML=opts;a.innerHTML=opts;h.value=state.teams.some(t=>t.id==oldH)?oldH:'1';a.value=state.teams.some(t=>t.id==oldA)?oldA:'2';
+ document.getElementById('teamList').innerHTML=state.teams.map(t=>`<div class="teamrow"><b>${t.id}.</b><input aria-label="Nome do time ${t.id}" data-team="${t.id}" value="${esc(t.name)}"></div>`).join('');
+ document.getElementById('results').innerHTML=state.games.length?state.games.slice().reverse().map(g=>`<div class="match"><span>${esc(g.a)}</span><strong>${g.x} × ${g.y}</strong><span>${esc(g.b)}</span></div>`).join(''):'<p class="muted">Nenhum jogo registrado ainda.</p>';
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['table','games','teams'].forEach(id=>document.getElementById(id).hidden=id!==b.dataset.tab)}));
+document.getElementById('teamList').addEventListener('change',e=>{if(e.target.dataset.team){const t=state.teams.find(x=>x.id==e.target.dataset.team);if(t){t.name=e.target.value.trim()||`Time ${t.id}`;save()}}});
+document.getElementById('addGame').addEventListener('click',()=>{
+ const a=Number(document.getElementById('home').value),b=Number(document.getElementById('away').value),x=Number(document.getElementById('hg').value),y=Number(document.getElementById('ag').value);
+ if(a===b){alert('Escolha dois times diferentes.');return}
+ if(!Number.isInteger(x)||!Number.isInteger(y)||x<0||y<0){alert('Digite gols válidos.');return}
+ const ta=state.teams.find(t=>t.id===a),tb=state.teams.find(t=>t.id===b);
+ for(const [t,gf,gc] of [[ta,x,y],[tb,y,x]]){t.j++;t.gp+=gf;t.gc+=gc;if(gf>gc){t.v++;t.p+=3}else if(gf===gc){t.e++;t.p++}else t.d++}
+ state.games.push({a:ta.name,b:tb.name,x,y});save();
+});
+document.getElementById('reset').addEventListener('click',()=>{if(confirm('Tem certeza? Todos os resultados e nomes serão apagados.')){state={teams:defaults.map(t=>({...t})),games:[]};save()}});
+render();
+</script></body></html>

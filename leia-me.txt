@@ -1,0 +1,10 @@
+SUPER LIGA — COMO PUBLICAR
+
+1. Extraia o arquivo ZIP.
+2. Você verá uma pasta chamada super_liga com o arquivo index.html.
+3. Abra https://app.netlify.com/drop no navegador.
+4. Entre ou crie uma conta Netlify.
+5. Envie/arraste a pasta super_liga (ou a pasta extraída que contém index.html) para a área de publicação.
+6. O Netlify vai gerar um endereço para seu site.
+
+DICA: O site salva nomes e resultados neste navegador usando armazenamento local. Para ter os mesmos dados em outros celulares, será necessário adicionar um banco de dados/servidor.
